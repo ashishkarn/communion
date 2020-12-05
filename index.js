@@ -5,7 +5,9 @@ const path = require('path')
 const mongoose = require('mongoose')
 const UserInfo = require('./model')
 const users = []
-const register = require('./register')
+const register = require('./routes/register')
+const auth = require('./routes/auth')
+const session = require('express-session')
 
 //DB connection
 try{
@@ -22,13 +24,17 @@ db.once('open', ()=>{console.log("Connection...")})
 
 //For parsing application/json requests
 app.use(express.json())
+app.use(session({
+  secret: 'baap'
+}))
 
 //Render html using pug, res.render()
 app.set("view engine", "pug");
 app.set("views", path.join(__dirname, "views"));
 
 //Homepage URI. Single Get request.
-app.get('/',(req, res)=>{
+app.get('/',(req, res)=>{  
+    req.session.pageVisitTime=Date.now()
     res.render("homepage")
 });
 
@@ -36,7 +42,11 @@ app.get('/',(req, res)=>{
 //Confirm no duplication of username and add the user to the test/UserInfo collection
 //Methods to query db in register.js
 app.post('/signup',  (req, res)=>{
-  console.log("at uri callback:"+ req)
+    if(req.session.logged){
+      req.session.username=""
+      req.session.logged=false
+      req.session.loginTime=0
+    }
     register.fUser(res, req, UserInfo, register.cUser)
 });
 
@@ -44,27 +54,46 @@ app.post('/signup',  (req, res)=>{
 //Corroborate username from UserInfo. Retrieve document and compare password
 //If authentication succesful, login user to profile, use cookie to check login status and
 //Retrieve methods in auth.js
-app.post('/login', async (req, res)=>{
-  try{
-    user=users.find(user => user.name===req.body.name)
-
-    if(user==null){
-      console.log("user null")
-      return res.status(400).send()
-    }
-
-    if(await bcrypt.compare(req.body.password, user.password)){
-      console.log("password match")
-      console.log("Login performed by user: "+user.name)
-      return res.send("User Login: "+user.name)
-    }
-
-    res.status(200).send("User not found")
-  }catch(err){
-    console.log(err)
-    res.status(500).send("Error")
+app.post('/login', (req, res)=>{
+  if(!req.session.logged){
+    register.fUser(res, req, UserInfo, auth);
+  }else{
+    res.send("User already logged in")
   }
 });
+
+app.get('/logout', (req, res)=>{
+  if(req.session.logged){
+    req.session.username=""
+    req.session.logged=false
+    req.session.loginTime=0
+    return res.send("Logged out")
+  }
+  return res.send("You have to log in first")
+});
+
+app.get('/profile/', (req, res)=>{
+  if(req.session.logged){
+    //Get user's video list from database, send a pug 
+    //with the list of videos to watch with a GET method /profile/:username/:videoPath
+    res.render("profile",{
+      paths:["video.mp4", "two.mp4", "3.mp4"],
+      username: req.session.username
+  })
+  }else{
+    res.send("You have to Login first.")
+  }
+})
+
+app.get('/profile/:username/:pathToVideo', (req, res)=>{
+  //ask for a video here.
+  //Check if username exists then if the video belongs to the :username, 
+  //if yes check if it is requested by :username=req.session.username
+  //if yes then send the video for streaming
+  //if not then check if the video is set public by the :username in db, 
+  //if yes send the video else deny access.
+  res.send("Hello from " + req.params.username)
+})
 
 app.listen(8000)
 

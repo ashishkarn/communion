@@ -1,18 +1,28 @@
-GET http://localhost:8000/users
+GET http://localhost:8000/p
 
 ###Signup
 POST http://localhost:8000/signup
 Content-Type: application/json
 
-{"username": "ashishkarn",
+{"username": "ashishk",
 "password": "Dilscoop1",
 "firstname": "Ashish",
 "lastname": "Karn"
 }
 
-###
-POST http://localhost:8000/users/login
+###Login 
+POST http://localhost:8000/login
 Content-Type: application/json
 
-{"username": "ashish",
-"password": "password"}
+{
+"username": "ashishk",
+"password": "Dilscoop1",
+"firstname": "Ashish",
+"lastname": "Karn"
+}
+
+###Logout
+GET http://localhost:8000/logout
+
+###
+GET http://localhost:8000/profile/

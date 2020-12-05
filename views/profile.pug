@@ -1,0 +1,12 @@
+doctype html
+html
+    body
+        p
+            b=username+"\'s profile:"
+        br
+        -var paths = paths
+        -var username = username
+        ul
+            for path in paths
+                li
+                    a(href="/profile/"+username+"/"+path, method=GET)=  path
