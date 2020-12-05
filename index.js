@@ -86,8 +86,8 @@ app.get('/profile/', (req, res)=>{
 })
 
 app.get('/profile/:username/:pathToVideo', (req, res)=>{
-  //ask for a video here.
-  //Check if username exists then if the video belongs to the :username, 
+  //user asks for a video using this URI.
+  //Check if :username exists then if the video belongs to the :username, 
   //if yes check if it is requested by :username=req.session.username
   //if yes then send the video for streaming
   //if not then check if the video is set public by the :username in db, 
