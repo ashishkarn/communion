@@ -1,39 +1,31 @@
 const bcrypt = require('bcrypt')
 
-function findUser(res, req, collection, callback){
-    try{
-        collection.find({username: req.body.username}, (err, doc)=>{
-            callback(res, err, req, collection, doc)
-        })
-      }catch(err){
-        console.log(err)
-        res.status(500).send("Error")
-    }
-}
-
 async function createUser(res, err, req, collection, doc){
-    console.log(doc.length)
+    //console.log(doc.length)
     if(doc.length>0){
         console.log(JSON.stringify(doc,null,'\t'))
         console.log(doc.length)
-        return res.status(500).send("User already exists! Try another Username")
+        return res.status(500).send("User already exists! Try another Username <a href=\"/\">Home</a>")
     }
     const hashedPass =  await bcrypt.hash(req.body.password, 10);
+    const videoPaths = []
+    videoPaths.push({path:"video.mp4", public:true}) 
     const user = {
         username:req.body.username, 
         firstName:req.body.firstname, 
         lastName:req.body.lastname,
-        password:hashedPass
+        password:hashedPass,
+        videoPaths: videoPaths
     }
     new collection(user).save()
     console.log("User Created")
     console.log(JSON.stringify(doc,null,'\t'))
     console.log(doc.length)
-    return res.send("User created")
+    return res.send("User created <a href=\"/\">Home</a>")
 }
 
 module.exports = {
-    fUser: findUser,
+    //fUser: findUser,
     cUser: createUser
 }
 

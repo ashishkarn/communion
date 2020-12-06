@@ -1,4 +1,4 @@
-GET http://localhost:8000/p
+GET http://localhost:8000/
 
 ###Signup
 POST http://localhost:8000/signup
@@ -25,4 +25,4 @@ Content-Type: application/json
 GET http://localhost:8000/logout
 
 ###
-GET http://localhost:8000/profile/
+POST http://localhost:8000/profile/
